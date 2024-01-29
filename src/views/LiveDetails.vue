@@ -1,116 +1,116 @@
 <template>
   <div class="card mt-5">
-    <!-- TODO : this need be retrieved dynamically -->
-    <div class="card-header bg-dark text-white pulse">
-      Real Madris vs PSG (en cours)
-    </div>
-    <div class="card-body">
-      <p class="card-text">
-      <div class="container">
-        <h4>Résultat du match</h4>
-        <div class="row">
-          <div class="col">
-            <div class="card bg-primary text-white h-100">
-              <div class="card-body">
-                <p class="card-text">Réal : 1.5</p>
-              </div>
-            </div>
-          </div>
-          <div class="col">
-            <div class="card bg-primary text-white h-100">
-              <div class="card-body">
-                <p class="card-text">Nul : 2.1</p>
-              </div>
-            </div>
-          </div>
-          <div class="col">
-            <div class="card bg-primary text-white h-100">
-              <div class="card-body">
-                <p class="card-text">Psg : 1.7</p>
-              </div>
-            </div>
-          </div>
-        </div>
-        <br>
-        <h4>Buteur</h4>
-        <div class="row mt-1">
-            <div class="card bg-primary text-white h-100 col">
-              <div class="card-body">
-             D. Neymar : 1.3
-              </div>
-            </div>
-        </div>
-      <div class="row mt-1">
-        <div class="card bg-primary text-white h-100 col">
-          <div class="card-body">
-          K. Mbappe : 1.6
-          </div>
-        </div>
-      </div>
-      <div class="row mt-1">
-        <div class="card bg-primary text-white h-100 col">
-          <div class="card-body">
-          L. Messi : 1.3
-          </div>
-        </div>
-      </div>
-        <div class="row mt-1">
-          <div class="card bg-primary text-white h-100 col">
-            <div class="card-body">
-              K. Benzema : 1.5
-            </div>
-          </div>
-        </div>
-          <div class="row mt-1">
-            <div class="card bg-primary text-white h-100 col">
-              <div class="card-body">
-                E. Hasard : 2.5
-              </div>
-            </div>
-          </div>
-            <div class="row mt-1">
-              <div class="card bg-primary text-white h-100 col">
-                <div class="card-body">
-                  J. Vinicius : 1.8
-                </div>
-              </div>
-            </div>
-              <div class="row mt-1">
-                <div class="card bg-primary text-white h-100 col">
+    <div
+      v-if="fixture"
+      class="card-header bg-dark text-white pulse"
+      v-text="fixture.name"
+    />
+    <div v-if="selections.length > 0" class="card-body">
+      <div class="card-text">
+        <div class="container">
+          <div v-for="market in markets" :key="market.id" class="mt-4">
+            <h4 v-text="market.name" />
+            <div
+              v-if="getSelectionsByMarketId(market.id).length < 4"
+              class="row mt-2"
+            >
+              <div
+                v-for="selection in getSelectionsByMarketId(market.id)"
+                :key="selection.id"
+                class="col"
+                style="cursor: pointer"
+              >
+                <div class="card bg-primary text-white h-100">
                   <div class="card-body">
-                    M. Icardi : 1.9
+                    <p
+                      class="card-text"
+                      v-text="`${selection.name} : ${selection.currentOdd}`"
+                    />
                   </div>
                 </div>
               </div>
+            </div>
+            <template v-else>
+              <div
+                v-for="selection in getSelectionsByMarketId(market.id)"
+                :key="selection.id"
+                class="row mt-2"
+              >
+                <div class="col" style="cursor: pointer">
+                  <div class="card bg-primary text-white h-100">
+                    <div class="card-body">
+                      <p
+                        class="card-text"
+                        v-text="`${selection.name} : ${selection.currentOdd}`"
+                      />
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </template>
+          </div>
+        </div>
       </div>
-      </p>
-      <router-link to="/lives" class="btn btn-light">Retour aux lives</router-link>
     </div>
+    <div class="card mt-5" v-else>
+      <h5>Aucune sélection disponible</h5>
+    </div>
+    <router-link to="/lives" class="btn btn-light mt-4"
+      >Retour aux lives</router-link
+    >
   </div>
-
 </template>
 
 <script>
-
-// @ is an alias to /src
-//import axios from '@/services/axios.js'
+import axios from "@/services/axios.js";
 
 export default {
-    name: 'livedetails',
-    mounted() {
-
+  name: "liveDetails",
+  created() {
+    this.fetchSelections();
+    this.getFixture();
+  },
+  data() {
+    return {
+      selections: [],
+      fixture: null,
+    };
+  },
+  methods: {
+    fetchSelections() {
+      axios.get("/selections.json").then((res) => {
+        this.selections = res.data.filter(
+          (elt) => elt.market.event.id.toString() === this.$route.params.id
+        );
+      });
     },
-    data() {
-        return {
-          //TODO: shoud be retrieved from json
-          //  axios.get('/selections.json')
-          selections : []
-        }
+    getFixture() {
+      axios.get("/lives.json").then((res) => {
+        this.fixture = res.data.find(
+          (elt) => elt.id.toString() === this.$route.params.id
+        );
+      });
     },
-   created(){
-   },
-    methods: {
-    }
-}
+    getSelectionsByMarketId(marketId) {
+      const selections = this.selections.filter(
+        (elt) => elt.market.id === marketId
+      );
 
+      return selections.length < 4
+        ? selections
+        : selections.sort((a, b) => a.currentOdd - b.currentOdd);
+    },
+  },
+  computed: {
+    markets() {
+      const markets = this.selections.map((elt) => elt.market);
+
+      return markets.reduce((array, item) => {
+        return array.find((elt) => elt.id === item.id)
+          ? array
+          : [...array, item];
+      }, []);
+    },
+  },
+};
 </script>

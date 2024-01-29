@@ -1,8 +1,8 @@
-import axios from 'axios'
+import axios from "axios";
 
 const instance = axios.create({
-    baseURL: 'json',
-    timeout: 1000
+  baseURL: "json",
+  timeout: 1000,
 });
 
-export default instance
+export default instance;

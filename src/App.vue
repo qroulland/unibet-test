@@ -1,74 +1,88 @@
 <template>
   <div id="app">
     <div class="home">
-    <div class="vue-logo-back">
-      <div class="centeralign bg-white" style="height:30px">
-        <span class="float-left">
-          <a  href="/lives">
-                  <img src="./assets/logo-unibet.png" class="header-logo" width="50px" height="50px">
-          </a>
-        </span>
-        <span class="text-dark float-right mr-3">
-        <div class="text-secondary mr-3">Login : <span class="font-weight-bold">{{ username }}</span></div>
-          <div class="text-secondary mr-3 ">Balance : <span class="font-weight-bold">{{ balance}} € </span></div>
-        </span>
-        <nav class="navbar navbar-expand-lg navbar-light bg-light">
-          <div class="container-fluid">
-            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNavDropdown" aria-controls="navbarNavDropdown" aria-expanded="false" aria-label="Toggle navigation">
-              <span class="navbar-toggler-icon"></span>
-            </button>
-            <div class="collapse navbar-collapse" id="navbarNavDropdown">
-              <ul class="navbar-nav">
-                <li class="nav-item">
-                  <router-link tag="a" class="nav-link" to="/lives">En direct</router-link>
-                </li>
-                </li>
-              </ul>
+      <div class="vue-logo-back">
+        <div class="centeralign bg-white" style="height: 30px">
+          <span class="float-left">
+            <a href="/lives">
+              <img
+                src="./assets/logo-unibet.png"
+                class="header-logo"
+                width="50px"
+                height="50px"
+              />
+            </a>
+          </span>
+          <span class="text-dark float-right mr-3">
+            <div class="text-secondary mr-3">
+              Login : <span class="font-weight-bold" v-text="username" />
             </div>
-          </div>
-        </nav>
-      </ul>
+            <div class="text-secondary mr-3">
+              Balance : <span class="font-weight-bold">{{ balance }} € </span>
+            </div>
+          </span>
+          <nav class="navbar navbar-expand-lg navbar-light bg-light">
+            <div class="container-fluid">
+              <button
+                class="navbar-toggler"
+                type="button"
+                data-bs-toggle="collapse"
+                data-bs-target="#navbarNavDropdown"
+                aria-controls="navbarNavDropdown"
+                aria-expanded="false"
+                aria-label="Toggle navigation"
+              >
+                <span class="navbar-toggler-icon"></span>
+              </button>
+              <div class="collapse navbar-collapse" id="navbarNavDropdown">
+                <ul class="navbar-nav">
+                  <li class="nav-item">
+                    <router-link tag="a" class="nav-link" to="/lives"
+                      >En direct</router-link
+                    >
+                  </li>
+                </ul>
+              </div>
+            </div>
+          </nav>
+        </div>
       </div>
-
+      <router-view />
     </div>
-    <router-view/>
-  </div>
   </div>
 </template>
 <script>
-
-// @ is an alias to /src
-import axios from '@/services/axios.js'
+import axios from "@/services/axios.js";
 
 export default {
-  name: 'App',
+  name: "App",
   created() {
     this.fetchBalance();
-    this.balanceInterval = setInterval(this.fetchBalance, 5000)
+    this.balanceInterval = setInterval(this.fetchBalance, 5000);
   },
   data() {
     return {
-      balanceInterval:undefined,
-      username : undefined,
-      balance : undefined
-    }
+      balanceInterval: undefined,
+      username: undefined,
+      balance: undefined,
+    };
   },
-  methods:{
-    fetchBalance(){
-      axios.get('/user.json').then(res => {
+  methods: {
+    fetchBalance() {
+      axios.get("/user.json").then((res) => {
         this.username = res.data.pseudo;
         this.balance = res.data.balance;
       });
-    }
+    },
   },
-  beforeDestroy(){
+  beforeDestroy() {
     clearInterval(this.balanceInterval);
-  }
-}
+  },
+};
 </script>
 <style>
 #app {
-  font-family: 'Avenir', Helvetica, Arial, sans-serif;
+  font-family: "Avenir", Helvetica, Arial, sans-serif;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
   text-align: center;
@@ -87,12 +101,10 @@ export default {
   color: #42b983;
 }
 
-
-
 .centeralign {
-    display: block;
-    margin-left: auto;
-    margin-right: auto;
+  display: block;
+  margin-left: auto;
+  margin-right: auto;
 }
 
 /* Animation live */
@@ -108,5 +120,4 @@ export default {
 .pulse {
   animation: shadow-pulse 1s infinite;
 }
-</style>
 </style>
